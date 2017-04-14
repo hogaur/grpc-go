@@ -11,6 +11,7 @@ It is generated from these files:
 It has these top-level messages:
 	HelloRequest
 	HelloReply
+	HelloAgainReply
 */
 package helloworld
 
@@ -44,6 +45,13 @@ func (m *HelloRequest) String() string            { return proto.CompactTextStri
 func (*HelloRequest) ProtoMessage()               {}
 func (*HelloRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
+func (m *HelloRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
 // The response message containing the greetings
 type HelloReply struct {
 	Message string `protobuf:"bytes,1,opt,name=message" json:"message,omitempty"`
@@ -54,9 +62,33 @@ func (m *HelloReply) String() string            { return proto.CompactTextString
 func (*HelloReply) ProtoMessage()               {}
 func (*HelloReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
+func (m *HelloReply) GetMessage() string {
+	if m != nil {
+		return m.Message
+	}
+	return ""
+}
+
+type HelloAgainReply struct {
+	Message string `protobuf:"bytes,1,opt,name=message" json:"message,omitempty"`
+}
+
+func (m *HelloAgainReply) Reset()                    { *m = HelloAgainReply{} }
+func (m *HelloAgainReply) String() string            { return proto.CompactTextString(m) }
+func (*HelloAgainReply) ProtoMessage()               {}
+func (*HelloAgainReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *HelloAgainReply) GetMessage() string {
+	if m != nil {
+		return m.Message
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*HelloRequest)(nil), "helloworld.HelloRequest")
 	proto.RegisterType((*HelloReply)(nil), "helloworld.HelloReply")
+	proto.RegisterType((*HelloAgainReply)(nil), "helloworld.HelloAgainReply")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -72,6 +104,7 @@ const _ = grpc.SupportPackageIsVersion4
 type GreeterClient interface {
 	// Sends a greeting
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloAgainReply, error)
 }
 
 type greeterClient struct {
@@ -91,11 +124,21 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
 	return out, nil
 }
 
+func (c *greeterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloAgainReply, error) {
+	out := new(HelloAgainReply)
+	err := grpc.Invoke(ctx, "/helloworld.Greeter/SayHelloAgain", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Greeter service
 
 type GreeterServer interface {
 	// Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	SayHelloAgain(context.Context, *HelloRequest) (*HelloAgainReply, error)
 }
 
 func RegisterGreeterServer(s *grpc.Server, srv GreeterServer) {
@@ -120,6 +163,24 @@ func _Greeter_SayHello_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_SayHelloAgain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HelloRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).SayHelloAgain(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/helloworld.Greeter/SayHelloAgain",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).SayHelloAgain(ctx, req.(*HelloRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Greeter_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "helloworld.Greeter",
 	HandlerType: (*GreeterServer)(nil),
@@ -127,6 +188,10 @@ var _Greeter_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SayHello",
 			Handler:    _Greeter_SayHello_Handler,
+		},
+		{
+			MethodName: "SayHelloAgain",
+			Handler:    _Greeter_SayHelloAgain_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -136,16 +201,18 @@ var _Greeter_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("helloworld.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 174 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0x12, 0xc8, 0x48, 0xcd, 0xc9,
+	// 207 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0xc8, 0x48, 0xcd, 0xc9,
 	0xc9, 0x2f, 0xcf, 0x2f, 0xca, 0x49, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x42, 0x88,
 	0x28, 0x29, 0x71, 0xf1, 0x78, 0x80, 0x78, 0x41, 0xa9, 0x85, 0xa5, 0xa9, 0xc5, 0x25, 0x42, 0x42,
 	0x5c, 0x2c, 0x79, 0x89, 0xb9, 0xa9, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x9c, 0x41, 0x60, 0xb6, 0x92,
 	0x1a, 0x17, 0x17, 0x54, 0x4d, 0x41, 0x4e, 0xa5, 0x90, 0x04, 0x17, 0x7b, 0x6e, 0x6a, 0x71, 0x71,
-	0x62, 0x3a, 0x4c, 0x11, 0x8c, 0x6b, 0xe4, 0xc9, 0xc5, 0xee, 0x5e, 0x94, 0x9a, 0x5a, 0x92, 0x5a,
-	0x24, 0x64, 0xc7, 0xc5, 0x11, 0x9c, 0x58, 0x09, 0xd6, 0x25, 0x24, 0xa1, 0x87, 0xe4, 0x02, 0x64,
-	0xcb, 0xa4, 0xc4, 0xb0, 0xc8, 0x00, 0xad, 0x50, 0x62, 0x70, 0x32, 0xe0, 0x92, 0xce, 0xcc, 0xd7,
-	0x4b, 0x2f, 0x2a, 0x48, 0xd6, 0x4b, 0xad, 0x48, 0xcc, 0x2d, 0xc8, 0x49, 0x2d, 0x46, 0x52, 0xeb,
-	0xc4, 0x0f, 0x56, 0x1c, 0x0e, 0x62, 0x07, 0x80, 0xbc, 0x14, 0xc0, 0x98, 0xc4, 0x06, 0xf6, 0x9b,
-	0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x0f, 0xb7, 0xcd, 0xf2, 0xef, 0x00, 0x00, 0x00,
+	0x62, 0x3a, 0x4c, 0x11, 0x8c, 0xab, 0xa4, 0xcd, 0xc5, 0x0f, 0x56, 0xe7, 0x98, 0x9e, 0x98, 0x99,
+	0x47, 0x40, 0xb1, 0xd1, 0x64, 0x46, 0x2e, 0x76, 0xf7, 0xa2, 0xd4, 0xd4, 0x92, 0xd4, 0x22, 0x21,
+	0x3b, 0x2e, 0x8e, 0xe0, 0xc4, 0x4a, 0xb0, 0x5e, 0x21, 0x09, 0x3d, 0x24, 0xf7, 0x22, 0x3b, 0x4d,
+	0x4a, 0x0c, 0x8b, 0x4c, 0x41, 0x4e, 0xa5, 0x12, 0x83, 0x90, 0x07, 0x17, 0x2f, 0x4c, 0x3f, 0xd8,
+	0x6e, 0x3c, 0x86, 0x48, 0x63, 0xc8, 0x20, 0x5c, 0xab, 0xc4, 0xe0, 0x64, 0xc0, 0x25, 0x9d, 0x99,
+	0xaf, 0x97, 0x5e, 0x54, 0x90, 0xac, 0x97, 0x5a, 0x91, 0x98, 0x5b, 0x90, 0x93, 0x5a, 0x8c, 0xa4,
+	0xc1, 0x09, 0xe2, 0xbf, 0x70, 0x10, 0x3b, 0x00, 0x14, 0x94, 0x01, 0x8c, 0x49, 0x6c, 0xe0, 0x30,
+	0x35, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0x93, 0x0f, 0xbd, 0x99, 0x67, 0x01, 0x00, 0x00,
 }
